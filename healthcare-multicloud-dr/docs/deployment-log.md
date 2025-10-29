@@ -124,7 +124,6 @@ multi-cloud-portfolio/
      diagrams/
          screenshots/
 ```
-```
 
 ---
 
@@ -257,8 +256,9 @@ multi-cloud-portfolio/
 - **Errors:** 0
 - **Manual Fixes:** 0
 
+---
+
 #### Files Created
-```
 ```
 terraform/aws-primary/
  main.tf          # 400+ lines - VPC, subnets, security groups, logging
@@ -266,7 +266,8 @@ terraform/aws-primary/
  outputs.tf       # 60 lines - Output values for other modules
  backend.tf       # Empty - will configure S3 backend Day 3
 ```
-```
+
+---
 
 ### Verification Completed
 
