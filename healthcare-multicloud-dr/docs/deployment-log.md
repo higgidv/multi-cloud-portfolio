@@ -259,6 +259,7 @@ multi-cloud-portfolio/
 
 #### Files Created
 ```
+```
 terraform/aws-primary/
  main.tf          # 400+ lines - VPC, subnets, security groups, logging
  variables.tf     # 80 lines - Input variables with defaults
