@@ -102,7 +102,7 @@ Atlas Healthcare Partners (and similar healthcare IT organizations)
 -  MFA enabled on AWS root account
 
 ### Repository Structure Created
-\\\
+```
 multi-cloud-portfolio/
  README.md
  .gitignore
@@ -123,7 +123,11 @@ multi-cloud-portfolio/
         rto-rpo-analysis.md
      diagrams/
          screenshots/
-\\\
+```
+```
+
+
+---
 
 ### Key Achievements
 - Professional portfolio repository structure
@@ -255,13 +259,13 @@ multi-cloud-portfolio/
 - **Manual Fixes:** 0
 
 #### Files Created
-\\\hcl
+```
 terraform/aws-primary/
  main.tf          # 400+ lines - VPC, subnets, security groups, logging
  variables.tf     # 80 lines - Input variables with defaults
  outputs.tf       # 60 lines - Output values for other modules
  backend.tf       # Empty - will configure S3 backend Day 3
-\\\
+```
 
 ### Verification Completed
 
@@ -655,40 +659,6 @@ terraform/aws-primary/
 4. **Take screenshots immediately** - Evidence while it's fresh
 5. **Check costs daily** - Catch unexpected charges early
 6. **Tag everything** - Makes resource management easier
-
----
-
-## Interview Preparation
-
-### Project Elevator Pitch (30 seconds)
-"I built a HIPAA-compliant multi-cloud disaster recovery architecture spanning AWS and Azure to demonstrate enterprise cloud skills. The primary environment runs on AWS with a FHIR API server and PostgreSQL database in a 3-tier VPC. Azure provides the DR site with database replication and cold-standby compute. I used Terraform for Infrastructure as Code, implemented automated failover with Python, and achieved 15-minute RTO with 5-minute RPO - all within free tier constraints at zero cost."
-
-### Technical Deep Dive Prompts
-
-**"Tell me about the network architecture"**
-[Use Day 2 talking points about 3-tier VPC design]
-
-**"How did you ensure HIPAA compliance?"**
-[Discuss CloudTrail, VPC Flow Logs, encryption, audit controls]
-
-**"Why multi-cloud instead of multi-region AWS?"**
-[Vendor lock-in mitigation, Azure skills demonstration, different compliance frameworks]
-
-**"How did you handle costs?"**
-[Free tier optimization, budget alerts, resource right-sizing]
-
-**"Walk me through the disaster recovery process"**
-[Automated failover, health checks, DNS updates, RTO/RPO metrics]
-
-### Quantifiable Achievements
--  21 AWS resources deployed in < 5 minutes
--  Monthly cost (100% free tier)
--  15-minute RTO target
--  5-minute RPO target
--  450+ lines of Terraform code
--  3-tier security architecture
--  100% Infrastructure as Code
--  Multi-cloud across AWS and Azure
 
 ---
 
