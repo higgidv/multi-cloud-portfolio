@@ -374,7 +374,7 @@ terraform/aws-primary/
 
  **Cost Optimization**
 - 100% free tier utilization
-- \ monthly cost achieved
+- Monthly cost achieved
 - Budget monitoring active
 
  **Professional Documentation**
@@ -610,8 +610,8 @@ terraform/aws-primary/
 - Functions: 1M free executions
 
 ### Budget Alerts Configured
--  \ - Zero spend alert (early warning)
--  \ - Monthly limit alert (stop work)
+-  Zero spend alert (early warning)
+-  Monthly limit alert (stop work)
 -  Email notifications enabled
 
 ---
@@ -682,7 +682,7 @@ terraform/aws-primary/
 
 ### Quantifiable Achievements
 -  21 AWS resources deployed in < 5 minutes
--  \ monthly cost (100% free tier)
+-  Monthly cost (100% free tier)
 -  15-minute RTO target
 -  5-minute RPO target
 -  450+ lines of Terraform code
