@@ -126,7 +126,6 @@ multi-cloud-portfolio/
 ```
 ```
 
-
 ---
 
 ### Key Achievements
@@ -265,6 +264,7 @@ terraform/aws-primary/
  variables.tf     # 80 lines - Input variables with defaults
  outputs.tf       # 60 lines - Output values for other modules
  backend.tf       # Empty - will configure S3 backend Day 3
+```
 ```
 
 ### Verification Completed
