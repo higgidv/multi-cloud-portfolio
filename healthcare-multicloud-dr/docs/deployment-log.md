@@ -35,7 +35,6 @@ Atlas Healthcare Partners (and similar healthcare IT organizations)
 -  Automated failover capabilities
 -  Infrastructure as Code (Terraform)
 -  Complete within AWS/Azure free tiers
--  Interview-ready documentation
 -  15-minute RTO, 5-minute RPO
 
 ### Technology Stack
@@ -347,8 +346,6 @@ terraform/aws-primary/
 **Solution:** Re-pasted code into files and verified byte size  
 **Lesson:** Always check file size before running terraform init
 
-### Interview Talking Points - Day 2
-
 **Architecture:**
 "I implemented a 3-tier VPC architecture following AWS Well-Architected Framework principles. The public subnet hosts the load balancer with internet access, the private app subnet runs containerized FHIR servers with no direct internet, and the data subnet isolates PostgreSQL with access only from the app tier. This provides defense-in-depth security."
 
@@ -386,7 +383,7 @@ terraform/aws-primary/
  **Professional Documentation**
 - Detailed deployment log
 - AWS Console screenshots
-- Interview talking points prepared
+
 
 ### Time Breakdown - Day 2
 - Terraform code writing: 1.5 hours
