@@ -1,0 +1,214 @@
+# Existing ignores...
+# Private documents (interview prep, personal notes)
+*PRIVATE*
+*interview-prep*
+*personal-notes*
+
+# ============================================================================
+# Terraform
+# ============================================================================
+
+# Local .terraform directories
+**/.terraform/*
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which might contain sensitive data
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are usually used to override resources locally
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Terraform plan files
+*.tfplan
+*.tfplan.json
+
+# ============================================================================
+# AWS
+# ============================================================================
+
+# AWS CLI credentials
+.aws/
+**/aws/credentials
+**/aws/config
+
+# ============================================================================
+# Azure
+# ============================================================================
+
+# Azure CLI
+.azure/
+
+# ============================================================================
+# Python
+# ============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================================================================
+# IDEs and Editors
+# ============================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (PyCharm, IntelliJ, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# Operating Systems
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ============================================================================
+# Logs and Temporary Files
+# ============================================================================
+
+# Log files
+*.log
+logs/
+*.out
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ============================================================================
+# Backup Files
+# ============================================================================
+
+*.bak
+*.backup
+*.old
+
+# ============================================================================
+# Secrets and Credentials
+# ============================================================================
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Certificates
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# API keys and tokens
+**/secrets/
+**/credentials/
+*.secret
+
+# ============================================================================
+# Project-Specific
+# ============================================================================
+
+# Personal notes
+PRIVATE/
+interview-prep/
+personal-notes/
+
+# Large binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# ============================================================================
+# Docker
+# ============================================================================
+
+# Docker files (if you add Docker later)
+.dockerignore
+docker-compose.override.yml
+
+# ============================================================================
+# Git
+# ============================================================================
+
+# Git conflict files
+*.orig
