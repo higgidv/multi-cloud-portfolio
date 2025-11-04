@@ -60,7 +60,7 @@ HIPAA-compliant disaster recovery architecture with fully operational FHIR R4 AP
 
 [View Project →](./healthcare-multicloud-dr/) | [Live FHIR API](http://healthcare-fhir-alb-1735242017.us-east-1.elb.amazonaws.com/fhir/metadata)
 
-**Status:** 🟢 In Progress - Day 4  
+**Status:** 🟢 In Progress - Day 5  
 **Path:** [`healthcare-multicloud-dr/`](./healthcare-multicloud-dr/)
 
 HIPAA-compliant disaster recovery architecture demonstrating primary/DR pattern across AWS and Azure.
