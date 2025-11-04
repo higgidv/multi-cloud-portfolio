@@ -22,3 +22,24 @@ resource "aws_route_table_association" "private_data_2" {
   subnet_id      = aws_subnet.private_data_2.id
   route_table_id = aws_route_table.private.id
 }
+
+# Second public subnet for ALB (different AZ)
+resource "aws_subnet" "public_az2" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.4.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[1]
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name        = "Public Subnet AZ2"
+    Project     = "Healthcare-DR"
+    Environment = "Production"
+    Tier        = "Public"
+  }
+}
+
+# Route table association for second public subnet
+resource "aws_route_table_association" "public_az2" {
+  subnet_id      = aws_subnet.public_az2.id
+  route_table_id = aws_route_table.public.id
+}
