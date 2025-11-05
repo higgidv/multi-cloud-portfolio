@@ -1,9 +1,10 @@
 # ============================================================================
-# AZURE SQL DATABASE - SIMPLIFIED FOR DAY 5
+# AZURE SQL DATABASE - DAY 5 FOUNDATION + DAY 6 SECURITY PREP
 # ============================================================================
 # Purpose: DR database for FHIR data (will replicate from AWS RDS)
 # Tier: Basic (eligible for 12-month free tier: 250GB storage)
-# Note: Auditing, private endpoints, and threat detection will be added Day 6
+# Day 5: Core database deployment with public access
+# Day 6: Private Endpoint, auditing, threat protection added via security.tf
 # ============================================================================
 
 # ============================================================================
@@ -25,8 +26,15 @@ resource "azurerm_mssql_server" "main" {
     object_id      = data.azurerm_client_config.current.object_id
   }
 
-  # Public access enabled for Day 5 - will add Private Endpoint on Day 6
+  # Public access enabled for Day 5
+  # Will remain enabled alongside Private Endpoint for Day 6
+  # In production, would disable after Private Endpoint validation
   public_network_access_enabled = true
+
+  # Prevent Terraform from trying to recreate server if public access changes
+  lifecycle {
+    ignore_changes = [public_network_access_enabled]
+  }
 
   tags = var.tags
 }
@@ -57,6 +65,7 @@ resource "azurerm_mssql_database" "main" {
 # ============================================================================
 
 # Allow Azure services to access SQL Server
+# Required for audit log writes to storage account
 resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
   name             = "AllowAzureServices"
   server_id        = azurerm_mssql_server.main.id
@@ -68,6 +77,6 @@ resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
 # resource "azurerm_mssql_firewall_rule" "allow_my_ip" {
 #   name             = "AllowMyIP"
 #   server_id        = azurerm_mssql_server.main.id
-#   start_ip_address = "YOUR_PUBLIC_IP"
-#   end_ip_address   = "YOUR_PUBLIC_IP"
+#   start_ip_address = "174.64.46.74"
+#   end_ip_address   = "174.64.46.74"
 # }

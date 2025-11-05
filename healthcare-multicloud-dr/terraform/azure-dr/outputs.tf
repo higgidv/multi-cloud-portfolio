@@ -88,3 +88,22 @@ output "sql_database_id" {
   description = "ID of Azure SQL Database"
   value       = azurerm_mssql_database.main.id
 }
+
+# ============================================================================
+# DAY 6: SECURITY OUTPUTS
+# ============================================================================
+
+output "sql_private_endpoint_ip" {
+  description = "Private IP address of SQL Server Private Endpoint"
+  value       = try(azurerm_private_endpoint.sql.private_service_connection[0].private_ip_address, "Not deployed yet")
+}
+
+output "sql_private_dns_zone" {
+  description = "Private DNS zone for SQL Server"
+  value       = try(azurerm_private_dns_zone.sql.name, "Not deployed yet")
+}
+
+output "sql_audit_storage_account" {
+  description = "Storage account for SQL audit logs"
+  value       = try(azurerm_storage_account.sql_audit.name, "Not deployed yet")
+}

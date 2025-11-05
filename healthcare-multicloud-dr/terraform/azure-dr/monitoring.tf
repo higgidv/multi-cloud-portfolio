@@ -16,7 +16,7 @@ resource "azurerm_log_analytics_workspace" "main" {
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "PerGB2018"
   retention_in_days   = var.log_retention_days
-  
+
   tags = var.tags
 }
 
@@ -32,7 +32,7 @@ resource "azurerm_monitor_action_group" "security_alerts" {
 
   email_receiver {
     name          = "SendToAdmin"
-    email_address = "dasehigg@gmail.com"
+    email_address = "dasean.labs01@gmail.com"
   }
 
   tags = var.tags
