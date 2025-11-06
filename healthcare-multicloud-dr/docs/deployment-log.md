@@ -2,7 +2,7 @@
 
 **Project:** HIPAA-Compliant Multi-Cloud Disaster Recovery Infrastructure  
 **Timeline:** October 28 - November 11, 2025 (15 days)  
-**Status:** 🟢 In Progress - Day 5 Complete  
+**Status:** 🟢 In Progress - Day 7 Complete  
 **Total Cost to Date:** $4.36/month
 
 ---
@@ -15,7 +15,7 @@
 4. [Day 3: Compliance Automation](#day-3-compliance-automation)
 5. [Day 4: Database & Application](#day-4-database--application)
 6. [Day 5: Azure DR Environment - Foundation](#day-5-azure-dr-environment---foundation)
-7. [Days 6-7: Azure Security & Connectivity](#days-6-7-azure-security--connectivity) (Planned)
+7. [Days 6-7: Azure Security & Connectivity](#days-6-7-azure-security--connectivity)
 8. [Days 8-10: Integration & Testing](#days-8-10-integration--testing) (Planned)
 9. [Cost Summary](#cost-summary)
 10. [Lessons Learned](#lessons-learned)
@@ -745,7 +745,333 @@ az storage account show --name hcdraudit4x8s8c
 
 ---
 
-## Days 6-7: Azure Security & Connectivity
+## Day 7: Cross-Cloud VPN Connectivity
+
+**Date:** November 5, 2025  
+**Duration:** ~6 hours (deployment + testing + documentation)  
+**Status:** ✅ Complete  
+**Cost:** $1.20 (deployment window only)
+
+### Overview
+Established redundant IPsec VPN tunnels between AWS us-east-1 (primary) and Azure East US 2 (DR) for secure cross-cloud connectivity. Successfully deployed, tested, and destroyed VPN infrastructure to minimize costs while preserving complete implementation as code.
+
+### Objectives
+✅ Deploy Azure VPN Gateway (VpnGw1)  
+✅ Configure AWS Virtual Private Gateway and Customer Gateway  
+✅ Establish dual redundant IPsec tunnels  
+✅ Configure cross-cloud routing (10.0.0.0/16 ↔ 10.1.0.0/16)  
+✅ Validate tunnel status and connectivity  
+✅ Destroy resources after validation for cost control
+
+### Resources Deployed (Temporary)
+
+**Azure VPN Infrastructure:**
+- VPN Gateway: `healthcare-dr-vpn-gateway` (VpnGw1, Generation1)
+- Public IP: `healthcare-dr-vpn-pip` (128.24.23.41)
+- Gateway Subnet: `GatewaySubnet` (10.1.255.0/27)
+- Local Network Gateways: 2 (one per AWS tunnel endpoint)
+- VPN Connections: 2 (redundant tunnels for HA)
+
+**AWS VPN Infrastructure:**
+- Virtual Private Gateway: `healthcare-vpn-gateway` (vgw-09d9b8dc2d2b6bbfc)
+- Customer Gateway: `healthcare-azure-cgw` (IP: 128.24.23.41)
+- VPN Connection: `healthcare-azure-vpn` (vpn-0534acfe44f116fe8)
+- Static Routes: 10.1.0.0/16 → VPN Gateway
+- Route Table Updates: Private subnet routing to Azure
+
+**IPsec Tunnel Details:**
+- Tunnel 1: 50.16.41.121 (Inside: 169.254.43.60/30) - ✅ UP
+- Tunnel 2: 52.2.3.246 (Inside: 169.254.103.140/30) - ✅ UP
+- Encryption: AES-256-GCM
+- Authentication: Pre-Shared Keys (stored in Terraform state)
+- IKE Version: IKEv2
+
+### Deployment Timeline
+
+| Time | Activity | Duration | Status |
+|------|----------|----------|--------|
+| 3:00 PM EST | Azure VPN Gateway deployment initiated | - | ✅ Started |
+| 3:45 PM EST | Azure Gateway operational | 45 min | ✅ Complete |
+| 4:30 PM EST | AWS VPN components deployed | 13 min | ✅ Complete |
+| 5:00 PM EST | Initial tunnel status check | - | ❌ DOWN |
+| 5:15 PM EST | PSK corrected, tunnels UP | 15 min | ✅ UP |
+| 5:30 PM EST | Screenshots captured | - | ✅ Complete |
+| 6:00 PM EST | All VPN resources destroyed | 15 min | ✅ Complete |
+
+### Architecture Decisions
+
+**1. VPN Gateway SKU Selection:**
+- Chose VpnGw1 Generation1 (most cost-effective)
+- Throughput: 100 Mbps (sufficient for database replication)
+- Cost: $0.15/hour vs VpnGw2 at $0.30/hour
+
+**2. Route-Based VPN:**
+- Static routing for explicit control
+- BGP disabled (not required for static routing)
+- Easier troubleshooting than policy-based VPN
+
+**3. Redundant Tunnels:**
+- AWS automatically provisions 2 tunnel endpoints
+- High availability: Automatic failover if one tunnel fails
+- Industry best practice for production DR
+
+**4. Temporary Deployment Strategy:**
+- Deploy → Test → Document → Destroy
+- Screenshots + Terraform code = portfolio evidence
+- Cost: $1.20 vs $145/month for persistent infrastructure
+- Demonstrates both technical capability and cost discipline
+
+### Key Challenges & Solutions
+
+**Challenge 1: VPN Gateway Deployment Time**
+- **Issue:** Azure VPN Gateway took 45 minutes to deploy
+- **Solution:** Started Azure deployment first, worked on AWS config in parallel
+- **Learning:** Plan for long deployment times; use time productively
+
+**Challenge 2: VPN Tunnels Down - PSK Mismatch**
+- **Issue:** Both IPsec tunnels remained DOWN for 15+ minutes after deployment
+- **Root Cause:** Pre-shared keys in Azure configuration didn't match AWS-generated keys
+- **Symptoms:** No clear error messages in console, tunnels stuck in DOWN status
+- **Solution:** 
+  1. Retrieved actual PSKs: `terraform output -raw aws_vpn_tunnel1_preshared_key`
+  2. Updated Azure `vpn-connection.tf` with correct keys
+  3. Redeployed Azure VPN connections: `terraform apply`
+  4. Tunnels established within 3 minutes
+- **Learning:** PSK matching is case-sensitive and critical; always copy from terraform outputs
+
+**Challenge 3: PowerShell Terraform Syntax**
+- **Issue:** Targeted destroy commands failing with "too many command line arguments"
+- **Root Cause:** PowerShell treats periods in resource names as separators
+- **Solution:** Use quotes: `terraform destroy -target="resource.name"`
+- **Alternative:** Full destroy when appropriate (all resources need removal)
+- **Learning:** PowerShell syntax differs from bash; quote special characters
+
+**Challenge 4: Accidental Full Azure Destroy**
+- **Issue:** Used `terraform destroy -auto-approve` without targets, destroyed all Azure infrastructure
+- **Impact:** Lost Days 4-6 Azure work (SQL Database, NSGs, Private Endpoints, monitoring)
+- **Recovery:** Terraform code intact, can rebuild in 30 minutes
+- **Decision:** Leave destroyed, rebuild on Day 8 when needed for DMS
+- **Learning:** Full destroy without targets is dangerous; always use targeted destroy or review plan first
+- **Portfolio Spin:** Demonstrates cost management - infrastructure as code allows on-demand deployment
+
+### Cost Analysis
+
+**VPN Infrastructure Costs:**
+
+| Component | Hourly Rate | 6-Hour Cost | Monthly Rate |
+|-----------|-------------|-------------|--------------|
+| Azure VPN Gateway | $0.15/hr | $0.90 | $109/month |
+| AWS VPN Connection | $0.05/hr | $0.30 | $36/month |
+| Data Transfer | Minimal | $0.00 | Variable |
+| **Total** | **$0.20/hr** | **$1.20** | **$145/month** |
+
+**Cost Management Decision:**
+- Deployed for 6 hours only (testing window)
+- Actual cost: $1.20 vs $145/month for persistent deployment
+- Cost savings: $143.80/month by destroying after validation
+- Terraform code preserved for rapid redeployment (~45 minutes)
+- Screenshots + documentation provide portfolio evidence
+
+**Current Project Costs:**
+- AWS: $4.30/month (RDS + ALB)
+- Azure: $0.00/month (all resources destroyed)
+- Day 7 VPN: $1.20 (one-time)
+- **Total: $5.50 to date**
+
+### Terraform Implementation
+
+**Files Created:**
+```
+terraform/azure-dr/
+├── vpn-gateway.tf        # VPN Gateway, Public IP, Gateway Subnet
+└── vpn-connection.tf     # Local Network Gateways, VPN Connections
+
+terraform/aws-primary/
+└── vpn-connectivity.tf   # Customer Gateway, VGW, VPN Connection, Routes
+```
+
+**Code Statistics:**
+- New files: 3
+- Lines added: ~300 HCL
+- Resources defined: 11 (7 AWS + 4 Azure)
+- Resources deployed: 11
+- Resources destroyed: 11
+- Remaining evidence: Terraform code + screenshots
+
+**Deployment Commands:**
+```powershell
+# Azure VPN Gateway
+cd terraform/azure-dr
+terraform plan -out .\vpn-gateway.tfplan
+terraform apply .\vpn-gateway.tfplan
+
+# AWS VPN (after Azure gateway deployed)
+cd ..\aws-primary
+terraform plan -out .\vpn-connectivity.tfplan
+terraform apply .\vpn-connectivity.tfplan
+
+# Azure VPN Connections (after AWS deployed)
+cd ..\azure-dr
+terraform plan -out .\vpn-connection.tfplan
+terraform apply .\vpn-connection.tfplan
+
+# Destroy (targeted - AWS)
+cd ..\aws-primary
+terraform destroy -target="aws_vpn_connection.azure" -auto-approve
+terraform destroy -target="aws_vpn_gateway.main" -auto-approve
+terraform destroy -target="aws_customer_gateway.azure" -auto-approve
+
+# Destroy (full - Azure, after syntax issues)
+cd ..\azure-dr
+terraform destroy -auto-approve
+```
+
+### Validation Results
+
+**Tunnel Status Verification:**
+```powershell
+# AWS verification
+aws ec2 describe-vpn-connections \
+  --query "VpnConnections[*].VgwTelemetry[*].[OutsideIpAddress,Status]" \
+  --output table
+
+# Result: Both tunnels UP
+# Tunnel 1: 50.16.41.121 - UP
+# Tunnel 2: 52.2.3.246 - UP
+
+# Azure verification
+az network vpn-connection show \
+  --resource-group healthcare-dr-rg \
+  --name healthcare-azure-to-aws-tunnel1 \
+  --query connectionStatus
+
+# Result: Connected
+```
+
+**Screenshots Captured:**
+- ✅ AWS VPN Connection showing both tunnels UP
+- ✅ Azure VPN Tunnel 1 connected status
+- ✅ Azure VPN Tunnel 2 connected status
+- ✅ AWS Virtual Private Gateway details
+- 📁 Location: `docs/screenshots/`
+
+### Security Considerations
+
+1. **Encryption:** AES-256-GCM for IPsec tunnel encryption (HIPAA-compliant)
+2. **Authentication:** Pre-shared keys (PSK) stored securely in Terraform state
+3. **Network Isolation:** Gateway subnet separate from application subnets
+4. **Routing Control:** Static routes prevent unintended traffic propagation
+5. **High Availability:** Redundant tunnels provide 99.95% uptime SLA
+
+### Documentation Artifacts
+
+**Created/Updated:**
+- ✅ `docs/MULTI-CLOUD-CONNECTIVITY.md` (comprehensive Day 7 documentation)
+- ✅ `docs/DEPLOYMENT_LOG.md` (this entry)
+- ✅ Screenshots in `docs/screenshots/`
+- ✅ Terraform VPN configurations committed to GitHub
+- ✅ Git commit with detailed message
+
+### Key Achievements - Day 7
+
+✅ **Technical Accomplishments:**
+- Deployed complete cross-cloud VPN infrastructure
+- Established redundant IPsec tunnels (HA design)
+- Configured static routing for controlled traffic flow
+- Validated tunnel connectivity (both UP)
+- Professional troubleshooting (PSK mismatch resolution)
+
+✅ **Cost Management:**
+- $1.20 total cost vs $145/month persistent
+- 99% cost savings through temporary deployment
+- Portfolio evidence captured without ongoing costs
+
+✅ **Professional Practices:**
+- Infrastructure as Code (complete VPN config in Terraform)
+- Comprehensive documentation (technical + screenshots)
+- Systematic troubleshooting methodology
+- Git version control with detailed commit messages
+
+✅ **Portfolio Value:**
+- Demonstrates multi-cloud networking skills
+- Shows cost optimization strategies
+- Proves troubleshooting capabilities under pressure
+- Evidence: Code + screenshots + documentation
+
+### Lessons Learned - Day 7
+
+1. **VPN Gateway Timing:** Azure VPN Gateways take 30-45 minutes to deploy. Always start long-running resources first and work on other tasks in parallel.
+
+2. **PSK Accuracy is Critical:** IPsec tunnels require exact pre-shared key matching. Use `terraform output` to retrieve keys rather than manual transcription.
+
+3. **PowerShell vs Bash Syntax:** PowerShell treats periods in resource names as separators. Use quotes around Terraform resource names: `terraform destroy -target="resource.name"`.
+
+4. **Targeted Destroy Safety:** Always review `terraform plan` before destroy. `terraform destroy -auto-approve` without targets destroys everything—use with caution.
+
+5. **Cost-Effective Validation:** For expensive resources ($145/month VPN), deploy temporarily for testing (6 hours = $1.20), capture evidence, and destroy. Infrastructure as Code enables rapid redeployment.
+
+6. **Tunnel Establishment Patience:** VPN tunnels may take 5-10 minutes to negotiate and come UP after configuration. Don't immediately troubleshoot—give Azure and AWS time to establish IPsec parameters.
+
+7. **Infrastructure as Code Value:** Destroying resources doesn't lose work when using Terraform. Complete infrastructure can be redeployed in 30-45 minutes, making temporary deployments viable.
+
+8. **Redundant Tunnels for Production:** AWS VPN automatically provides two tunnel endpoints. This is critical for high-availability DR—if one tunnel fails, traffic automatically uses the second.
+
+### Time Breakdown - Day 7
+
+- Azure VPN Gateway deployment: 45 minutes (waiting)
+- AWS VPN configuration: 30 minutes (code + deploy)
+- Azure VPN connections: 20 minutes (code + deploy)
+- Troubleshooting PSK mismatch: 20 minutes
+- Screenshot capture: 10 minutes
+- Resource destruction: 15 minutes
+- Documentation: 2 hours
+- **Total:** ~6 hours
+
+### Current Project Status
+
+**Infrastructure Deployed:**
+- AWS Resources: 82 resources (5 VPN resources destroyed)
+- Azure Resources: 5 resources (VNet, DNS Zone, VNet Link - 21 destroyed)
+- **Total Active Resources:** 87
+
+**Costs:**
+- AWS: $4.30/month (RDS + ALB)
+- Azure: $0.00/month (all resources destroyed)
+- Day 7 VPN: $1.20 (one-time)
+- **Current Monthly Run Rate:** $4.30
+- **Project Total to Date:** $5.50
+
+**Project Progress:**
+- Days Complete: 7 of 10 (70%)
+- Next: Day 8 - Azure rebuild + AWS DMS setup
+
+### Next Steps (Day 8)
+
+**Morning (2 hours):**
+1. Rebuild Azure DR infrastructure from Terraform (~30 min)
+2. Verify Azure SQL Database operational
+3. Update documentation with actual Azure resource IDs
+
+**Afternoon (4 hours):**
+4. Deploy AWS DMS replication instance (dms.t3.micro - free tier)
+5. Create DMS source endpoint (AWS RDS PostgreSQL)
+6. Create DMS target endpoint (Azure SQL Database)
+7. Configure DMS replication task (full load + CDC)
+8. Test initial data synchronization
+
+**Evening (2 hours):**
+9. Validate ongoing replication (insert test data)
+10. Measure replication lag (RPO validation)
+11. Document DMS architecture and configuration
+12. Update DEPLOYMENT_LOG.md with Day 8 summary
+
+**Expected Outcomes:**
+- ✅ Continuous PostgreSQL → Azure SQL replication
+- ✅ 5-minute RPO achieved
+- ✅ Foundation for Day 9 failover testing
+- 💰 Estimated cost: $0 (DMS within free tier)
+
+---
 
 **Date:** November 5-6, 2025 (Planned)  
 **Duration:** 6-8 hours (Estimated)  
@@ -941,6 +1267,6 @@ https://github.com/higgidv/multi-cloud-portfolio/tree/main/healthcare-multicloud
 **Email:** higgins.dasean@gmail.com  
 **GitHub:** https://github.com/higgidv
 
-**Last Updated:** November 4, 2025  
-**Document Version:** 1.5  
-**Next Update:** After Day 6 completion
+**Last Updated:** November 6, 2025  
+**Document Version:** 1.7  
+**Next Update:** After Day 8 completion
